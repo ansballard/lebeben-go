@@ -6,103 +6,42 @@ import (
   "fmt"
   "os"
   "path/filepath"
+  "strings"
   "time"
   "github.com/radovskyb/watcher"
 )
 
-// type Flags struct {
-//   help bool
-//   jsxFactory string
-//   jsxFragment string
-//   minify bool
-//   nomodule bool
-//   port int
-//   public string
-//   serve bool
-//   watch string
-//   verbose bool
-// }
+type MultiFlag []string
 
-// [
-//   {
-//     long: "watch",
-//     default: [],
-//     type: "string[]",
-//     description: "one or many directories to watch for changes",
-//   },
-//   {
-//     long: "serve",
-//     type: "boolean",
-//     default: false,
-//     description: "serve app locally",
-//   },
-//   {
-//     long: "public",
-//     short: "u",
-//     type: "string",
-//     default: "public",
-//     description: "the directory to serve",
-//   },
-//   {
-//     long: "port",
-//     type: "number",
-//     default: 5000,
-//     description: "the port to serve",
-//   },
-//   {
-//     long: "verbose",
-//     type: "boolean",
-//     default: false,
-//     description: "enable more detailed logs",
-//   },
-//   {
-//     long: "nomodule",
-//     type: "boolean",
-//     default: "false",
-//     description: "generate the es2015 fallback bundle",
-//   },
-//   {
-//     long: "minify",
-//     type: "boolean",
-//     default: false,
-//     description: "minify all output",
-//   },
-//   {
-//     long: "jsxFactory",
-//     type: "string",
-//     default: "h",
-//     description: "jsx render function to use for nodes",
-//   },
-//   {
-//     long: "jsxFragment",
-//     type: "string",
-//     default: "Fragment",
-//     description: "jsx render function to use for fragments",
-//   },
-//   {
-//     long: "help",
-//     type: "boolean",
-//     default: false,
-//     description: "display this message",
-//   },
-// ];
+func (i *MultiFlag) String() string {
+    return ""
+}
+
+func (i *MultiFlag) Set(value string) error {
+    *i = append(*i, value)
+    return nil
+}
+
+var Watch MultiFlag
 
 func build(
+  EntryPoints []string,
   JsxFactory *string,
   JsxFragment *string,
   Minify *bool,
   Nomodule *bool,
   Public *string,
-  Watch *string,
+  Watch []string,
 ) (buildResult api.BuildResult) {
-  Outfile := "module"
+  startTime := time.Now()
+  Outdir := "module"
   Target := api.ES2017
   if *Nomodule {
     Target = api.ES2015
-    Outfile = "nomodule"
+    Outdir = "nomodule"
   }
   buildResult = api.Build(api.BuildOptions{
-    EntryPoints: []string{"src/app.jsx"},
+    EntryPoints: EntryPoints,
 
     JSXFactory: *JsxFactory,
     JSXFragment: *JsxFragment,
@@ -113,13 +52,13 @@ func build(
 
     Target: Target,
 
-    Outfile: filepath.Join(*Public, Outfile, "app.js"),
+    Outdir: filepath.Join(*Public, Outdir),
     Bundle:      true,
     Platform:    api.PlatformBrowser,
     Write:       true,
     Incremental: true,
   })
-  fmt.Println("Built")
+  fmt.Println("⏱️  ", time.Since(startTime))
   return buildResult
 }
 
@@ -132,7 +71,7 @@ func main() {
   // Port := flag.Int("port", 5000, "the port to serve")
   Public := flag.String("public", "public", "the directory to serve")
   // Serve := flag.Bool("serve", false, "serve app locally")
-  Watch := flag.String("watch", "", "one ~~or many~~ directories to watch for changes")
+  flag.Var(&Watch, "watch", "one or many directories to watch for changes")
   // Verbose := flag.Bool("verbose", false, "enable more detailed logs")
 
   flag.Parse()
@@ -143,6 +82,7 @@ func main() {
   }
 
   buildResult := build(
+    flag.Args(),
     JsxFactory,
     JsxFragment,
     Minify,
@@ -151,24 +91,17 @@ func main() {
     Watch,
   )
 
-  if *Watch != "" {
-    fmt.Println("Watching...")
+  if len(Watch) > 0 {
+    fmt.Println("Watching", strings.Join(Watch, ", "))
     w := watcher.New()
 
     go func() {
       for {
         select {
         case event := <-w.Event:
-          fmt.Println(event) // Print the event's info.
-          // build(
-          //   JsxFactory,
-          //   JsxFragment,
-          //   Minify,
-          //   Nomodule,
-          //   Public,
-          //   Watch,
-          // )
+          startTime := time.Now()
           buildResult.Rebuild()
+          fmt.Println("⏱️  ", time.Since(startTime), event.Name())
         case err := <-w.Error:
           fmt.Println(err)
         case <-w.Closed:
@@ -177,9 +110,11 @@ func main() {
       }
     }()
 
-    if addErr := w.AddRecursive(*Watch); addErr != nil {
-      fmt.Println("AddRecursive")
-      fmt.Println(addErr)
+    for _, directory := range Watch {
+      if addErr := w.AddRecursive(directory); addErr != nil {
+        fmt.Println("AddRecursive")
+        fmt.Println(addErr)
+      }
     }
 
     if startErr :=  w.Start(time.Millisecond * 333); startErr != nil {

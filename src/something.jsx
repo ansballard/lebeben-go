@@ -1,8 +1,11 @@
+import { value } from "./new.jsx";
+import { red } from "../constants/colors.jsx";
+
 const testing = 123;
 
 console.log("ok then");
 
-return 12;
+return value;
 
 const func = async () => {
   const we = await Promise.resolve(true);
@@ -10,4 +13,4 @@ const func = async () => {
 
 func();
 
-console.log("whatever2")
+console.log("whatever3")
