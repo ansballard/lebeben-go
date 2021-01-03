@@ -11,19 +11,6 @@ import (
   "github.com/radovskyb/watcher"
 )
 
-type MultiFlag []string
-
-func (i *MultiFlag) String() string {
-    return ""
-}
-
-func (i *MultiFlag) Set(value string) error {
-    *i = append(*i, value)
-    return nil
-}
-
-var Watch MultiFlag
-
 func build(
   EntryPoints []string,
   JsxFactory *string,
@@ -58,9 +45,19 @@ func build(
     Write:       true,
     Incremental: true,
   })
-  fmt.Println("⏱️  ", time.Since(startTime))
+  fmt.Println("⏱️  ", time.Since(startTime).Truncate(time.Millisecond))
   return buildResult
 }
+
+type MultiFlag []string
+func (i *MultiFlag) String() string {
+    return ""
+}
+func (i *MultiFlag) Set(value string) error {
+    *i = append(*i, value)
+    return nil
+}
+var Watch MultiFlag
 
 func main() {
   Help := flag.Bool("help", false, "display this message")
@@ -92,7 +89,7 @@ func main() {
   )
 
   if len(Watch) > 0 {
-    fmt.Println("Watching", strings.Join(Watch, ", "))
+    fmt.Println("👀  Watching", strings.Join(Watch, ", "))
     w := watcher.New()
 
     go func() {
@@ -101,7 +98,7 @@ func main() {
         case event := <-w.Event:
           startTime := time.Now()
           buildResult.Rebuild()
-          fmt.Println("⏱️  ", time.Since(startTime), event.Name())
+          fmt.Println("⏱️  ", time.Since(startTime).Truncate(time.Millisecond), event.Name())
         case err := <-w.Error:
           fmt.Println(err)
         case <-w.Closed:
