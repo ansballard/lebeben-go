@@ -4,9 +4,11 @@ import (
   "github.com/evanw/esbuild/pkg/api"
   "flag"
   "fmt"
+  "net/http"
   "os"
   "path/filepath"
   "strings"
+  "sync"
   "time"
   "github.com/radovskyb/watcher"
 )
@@ -65,9 +67,9 @@ func main() {
   JsxFragment := flag.String("jsxFragment", "Fragment", "jsx render function to use for fragments")
   Minify := flag.Bool("minify", false, "minify all output")
   Nomodule := flag.Bool("nomodule", false, "generate the es2015 fallback bundle")
-  // Port := flag.Int("port", 5000, "the port to serve")
+  Port := flag.String("port", "5000", "the port to serve")
   Public := flag.String("public", "public", "the directory to serve")
-  // Serve := flag.Bool("serve", false, "serve app locally")
+  Serve := flag.Bool("serve", false, "serve app locally")
   flag.Var(&Watch, "watch", "one or many directories to watch for changes")
   // Verbose := flag.Bool("verbose", false, "enable more detailed logs")
 
@@ -78,6 +80,8 @@ func main() {
     os.Exit(1)
   }
 
+  wg := new(sync.WaitGroup)
+
   buildResult := build(
     flag.Args(),
     JsxFactory,
@@ -87,6 +91,15 @@ func main() {
     Public,
     Watch,
   )
+
+  if *Serve {
+    wg.Add(1)
+    go func() {
+      http.Handle("/", http.FileServer(http.Dir(*Public)))
+      http.ListenAndServe(":"+*Port, nil)
+    }()
+    fmt.Printf("Serving at http://localhost:%s\n", *Port)
+  }
 
   if len(Watch) > 0 {
     fmt.Println("👀  Watching", strings.Join(Watch, ", "))
@@ -109,13 +122,11 @@ func main() {
 
     for _, directory := range Watch {
       if addErr := w.AddRecursive(directory); addErr != nil {
-        fmt.Println("AddRecursive")
         fmt.Println(addErr)
       }
     }
 
-    if startErr :=  w.Start(time.Millisecond * 333); startErr != nil {
-      fmt.Println("Start")
+    if startErr :=  w.Start(time.Millisecond * 100); startErr != nil {
       fmt.Println(startErr)
     }
   }
@@ -124,4 +135,6 @@ func main() {
     fmt.Println("errors?")
     fmt.Println(buildResult.Errors)
   }
+
+  wg.Wait()
 }
