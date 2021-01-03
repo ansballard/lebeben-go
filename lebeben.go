@@ -1,6 +1,7 @@
 package main
 
 import (
+  "github.com/fatih/color"
   "github.com/evanw/esbuild/pkg/api"
   "flag"
   "fmt"
@@ -47,7 +48,7 @@ func build(
     Write:       true,
     Incremental: true,
   })
-  fmt.Println("⏱️  ", time.Since(startTime).Truncate(time.Millisecond))
+  fmt.Printf("⏱️   %s\n", color.GreenString(time.Since(startTime).Truncate(time.Millisecond).String()))
   return buildResult
 }
 
@@ -71,7 +72,6 @@ func main() {
   Public := flag.String("public", "public", "the directory to serve")
   Serve := flag.Bool("serve", false, "serve app locally")
   flag.Var(&Watch, "watch", "one or many directories to watch for changes")
-  // Verbose := flag.Bool("verbose", false, "enable more detailed logs")
 
   flag.Parse()
 
@@ -98,11 +98,11 @@ func main() {
       http.Handle("/", http.FileServer(http.Dir(*Public)))
       http.ListenAndServe(":"+*Port, nil)
     }()
-    fmt.Printf("Serving at http://localhost:%s\n", *Port)
+    fmt.Printf("%s%s\n", color.CyanString("Serving at http://localhost:"), color.CyanString(*Port))
   }
 
   if len(Watch) > 0 {
-    fmt.Println("👀  Watching", strings.Join(Watch, ", "))
+    fmt.Printf("👀  Watching [%s]\n", color.GreenString(strings.Join(Watch, " ")))
     w := watcher.New()
 
     go func() {
@@ -111,7 +111,7 @@ func main() {
         case event := <-w.Event:
           startTime := time.Now()
           buildResult.Rebuild()
-          fmt.Println("⏱️  ", time.Since(startTime).Truncate(time.Millisecond), event.Name())
+          fmt.Printf("⏱️  %s %s\n", color.GreenString(time.Since(startTime).Truncate(time.Millisecond).String()), color.YellowString(event.Name()))
         case err := <-w.Error:
           fmt.Println(err)
         case <-w.Closed:
