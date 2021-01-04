@@ -1,1 +1,5 @@
 public
+!public/index.html
+*.tar.gz
+builds/*/*
+node_modules

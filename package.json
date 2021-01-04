@@ -1,0 +1,29 @@
+{
+  "name": "lebeben-go",
+  "version": "0.3.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "lebeben-go": "./npm/binary.js"
+  },
+  "scripts": {
+    "postinstall": "node npm/binary.js install"
+  },
+  "files": [
+    "npm/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ansballard/lebeben-go"
+  },
+  "keywords": [],
+  "author": "@ansballard (Aaron Ballard)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ansballard/lebeben-go/issues"
+  },
+  "homepage": "https://github.com/ansballard/lebeben-go#readme",
+  "dependencies": {
+    "binary-install": "^0.1.0"
+  }
+}
