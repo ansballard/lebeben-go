@@ -1,15 +1,9 @@
-#!/usr/bin/env node
-
 const { Binary } = require("binary-install");
 const os = require('os');
-const action = process.argv[2] || "run";
 
-if(!["run", "install"].includes(action)) {
-  throw new Error(`Invalid action: ${action} provided. Must be 'run' or 'install'`)
-}
-
-function getPlatform() {
+const getPlatform = () => {
   const arch = os.arch();
+
   if(arch !== "x64") {
     throw new Error("64 bit required");
   }
@@ -23,20 +17,26 @@ function getPlatform() {
   }
 }
 
-const platform = getPlatform();
-const { name, version } = require("../package.json");
+const getBinary = () => {
+  const platform = getPlatform();
+  const { name, version } = require("../package.json");
 
-const url = `https://github.com/ansballard/${name}/releases/download/v${version}/${name}-${platform}.tar.gz`;
+  const url = `https://github.com/ansballard/${name}/releases/download/v${version}/${name}-${platform}.tar.gz`;
 
-const binary = new Binary(name, url);
+  return new Binary(name, url);
+};
 
-switch (action) {
-  case "run": {
-    binary.run();
-    break;
-  }
-  case "install": {
-    binary.install();
-    break;
-  }
-}
+const run = () => {
+  const binary = getBinary();
+  binary.run();
+};
+
+const install = () => {
+  const binary = getBinary();
+  binary.install();
+};
+
+module.exports = {
+  install,
+  run
+};

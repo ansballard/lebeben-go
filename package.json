@@ -1,13 +1,13 @@
 {
   "name": "lebeben-go",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "",
-  "main": "index.js",
+  "main": "npm/binary.js",
   "bin": {
-    "lebeben-go": "./npm/binary.js"
+    "lebeben-go": "./npm/run.js"
   },
   "scripts": {
-    "postinstall": "node npm/binary.js install"
+    "postinstall": "node npm/install.js"
   },
   "files": [
     "npm/**/*"
