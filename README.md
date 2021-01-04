@@ -27,3 +27,11 @@ tar -C builds -czvf lebeben-go-macos.tar.gz lebeben-go-macos
 tar -C builds -czvf lebeben-go-win64.tar.gz lebeben-go-win64
 tar -C builds -czvf lebeben-go-linux.tar.gz lebeben-go-linux
 ```
+
+## Performance
+
+Comparison between the native javascript version, version pulled from `go get` and the version installed via `npm`. 30 rebuilds triggered by saving a single watched file, saving roughly every 250ms. The average of the 30 builds is shown below.
+
+|Javascript|go get|npm i|
+|---|---|---|
+|~18s|~6s|~7s|
