@@ -24,9 +24,9 @@ function getPlatform() {
 }
 
 const platform = getPlatform();
-const { name, version, repository } = require("../package.json");
+const { name, version } = require("../package.json");
 
-const url = `${repository.url}/releases/download/v${version}/${name}-${platform}.tar.gz`;
+const url = `https://github.com/ansballard/${name}/releases/download/v${version}/${name}-${platform}.tar.gz`;
 
 const binary = new Binary(name, url);
 
