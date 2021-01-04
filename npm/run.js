@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-const { run } = require("./binary");
+const { run } = require("./getBinary.js");
 run();
