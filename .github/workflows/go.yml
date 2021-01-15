@@ -1,0 +1,115 @@
+name: Build and Release Lebeben
+
+env:
+  RELEASE_DIR: artifacts
+  WORKING_DIR: ./example-binary
+  GITHUB_REF: "${{ github.ref }}"
+  WINDOWS_TARGET: x86_64-pc-windows-msvc
+  MACOS_TARGET: x86_64-apple-darwin
+  LINUX_TARGET: x86_64-unknown-linux-musl
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Build Mac
+        id: build_mac
+        shell: bash
+        run: |
+          env GOOS='darwin' GOARCH='amd64' go build -o builds/lebeben-go-macos/lebeben-go .
+          chmod +x builds/lebeben-go-macos/lebeben-go
+          tar -C builds -czvf lebeben-go-macos.tar.gz lebeben-go-macos
+
+      - name: Build Windows
+        id: build_windows
+        shell: bash
+        run: |
+          env GOOS='windows' GOARCH='amd64' go build -o builds/lebeben-go-win64/lebeben-go.exe .
+          chmod +x builds/lebeben-go-win64/lebeben-go.exe
+          tar -C builds -czvf lebeben-go-win64.tar.gz lebeben-go-win64
+
+      - name: Build Linux
+        id: build_linux
+        shell: bash
+        run: |
+          env GOOS='linux' GOARCH='amd64' go build -o builds/lebeben-go-linux/lebeben-go .
+          chmod +x builds/lebeben-go-linux/lebeben-go
+          tar -C builds -czvf lebeben-go-linux.tar.gz lebeben-go-linux
+      
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Lebeben Binaries
+          path: ./builds
+          if-no-files-found: error
+          retention-days: 0
+
+  release:
+    name: Github Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query version number
+        id: get_version
+        shell: bash
+        run: |
+          echo "using version tag ${GITHUB_REF:15}"
+          echo ::set-output name=version::"${GITHUB_REF:15}"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          prerelease: true
+      - name: Download Binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: Lebeben Binaries
+          path: ./builds
+      - name: Upload Mac Binary
+        id: upload_mac_binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./builds/lebeben-go-macos/lebeben-go-macos.tar.gz
+          asset_content_type: application/gzip
+          asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.MACOS_TARGET }}.tar.gz
+      - name: Upload Windows Binary
+        id: upload_windows_binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./builds/lebeben-go-win64/lebeben-go-win64.tar.gz
+          asset_content_type: application/gzip
+          asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.WINDOWS_TARGET }}.tar.gz
+      - name: Upload Linux Binary
+        id: upload_linux_binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./builds/lebeben-go-macos/lebeben-go-macos.tar.gz
+          asset_content_type: application/gzip
+          asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
+        
