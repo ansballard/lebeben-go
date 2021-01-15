@@ -52,7 +52,7 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Lebeben Binaries
+          name: lebeben_binaries
           path: ./builds
           if-no-files-found: error
           retention-days: 0
@@ -80,8 +80,7 @@ jobs:
       - name: Download Binaries
         uses: actions/download-artifact@v2
         with:
-          name: Lebeben Binaries
-          path: ./builds
+          name: lebeben_binaries
       - name: Upload Mac Binary
         id: upload_mac_binary
         uses: actions/upload-release-asset@v1
