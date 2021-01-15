@@ -1,4 +1,4 @@
-const { Binary } = require("./binary.js");
+const { Binary } = require("binary-install");
 const os = require('os');
 
 const getPlatform = () => {

@@ -24,8 +24,6 @@
   },
   "homepage": "https://github.com/ansballard/lebeben-go#readme",
   "dependencies": {
-    "axios": "^0.21.1",
-    "rimraf": "^3.0.2",
-    "tar": "^6.0.5"
+    "binary-install": "^0.1.1"
   }
 }
