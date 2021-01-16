@@ -65,6 +65,9 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14' 
       - name: Query version number
         id: get_version
         shell: bash
@@ -114,4 +117,8 @@ jobs:
           asset_path: ./lebeben-go-macos.tar.gz
           asset_content_type: application/gzip
           asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
-        
+      - name: Publish to NPM
+        id: publish_to_npm
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}

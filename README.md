@@ -1,3 +1,8 @@
+# Lebeben
+_lebeben-go_
+
+Lebeben is a single CLI to transpile, bundle, watch, and serve your javascript SPA. 
+
 ## Build across platforms from powershell
 
 ```powershell
