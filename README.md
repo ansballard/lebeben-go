@@ -1,23 +1,9 @@
 # Lebeben
 _lebeben-go_
 
-Lebeben is a single CLI to transpile, bundle, watch, and serve your javascript SPA. 
+Lebeben is a single CLI to transpile, bundle, watch, and serve your javascript SPA.
 
-## Build across platforms from powershell
-
-```powershell
-$env:GOOS='darwin';$env:GOARCH='amd64';go build -o builds/lebeben-go-macos/lebeben-go .;Remove-Item Env:/GOOS;Remove-Item Env:/GOARCH;
-$env:GOOS='windows';$env:GOARCH='amd64';go build -o builds/lebeben-go-win64/lebeben-go.exe .;Remove-Item Env:/GOOS;Remove-Item Env:/GOARCH;
-$env:GOOS='linux';$env:GOARCH='amd64';go build -o builds/lebeben-go-linux/lebeben-go .;Remove-Item Env:/GOOS;Remove-Item Env:/GOARCH;
-
-# need to make the above files executable
-
-tar -C builds -czvf lebeben-go-macos.tar.gz lebeben-go-macos
-tar -C builds -czvf lebeben-go-win64.tar.gz lebeben-go-win64
-tar -C builds -czvf lebeben-go-linux.tar.gz lebeben-go-linux
-```
-
-## Build across platforms in bash (includes making them executable)
+## Build across platforms in bash (handled by Github Actions)
 
 ```sh
 env GOOS='darwin' GOARCH='amd64' go build -o builds/lebeben-go-macos/lebeben-go .
@@ -32,6 +18,23 @@ tar -C builds -czvf lebeben-go-macos.tar.gz lebeben-go-macos
 tar -C builds -czvf lebeben-go-win64.tar.gz lebeben-go-win64
 tar -C builds -czvf lebeben-go-linux.tar.gz lebeben-go-linux
 ```
+
+## Development/Release Process
+
+- `npm i`
+- make changes, rebuilt, test, etc
+- bump the version in `package.json` and `package-lock.json`
+- `git add .`
+- `git commit -m "messages"`
+  - precommit hooks will format go and js files
+- `git tag vX.Y.Z`
+  - make note of the leading `v`
+  - should match the version in `package.json`
+- `git push origin master --tags`
+- wait for github actions to
+  - build the go binaries for mac, linux, and windows
+  - create a release on Github
+  - publish a new version to npm, pointing to that release
 
 ## Performance
 
