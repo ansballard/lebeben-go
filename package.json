@@ -1,6 +1,6 @@
 {
   "name": "lebeben-go",
-  "version": "0.3.4",
+  "version": "0.3.4-alpha1",
   "description": "",
   "main": "npm/binary.js",
   "bin": {

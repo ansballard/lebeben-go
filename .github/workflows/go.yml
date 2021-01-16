@@ -2,11 +2,7 @@ name: Build and Release Lebeben
 
 env:
   RELEASE_DIR: artifacts
-  WORKING_DIR: ./example-binary
   GITHUB_REF: "${{ github.ref }}"
-  WINDOWS_TARGET: x86_64-pc-windows-msvc
-  MACOS_TARGET: x86_64-apple-darwin
-  LINUX_TARGET: x86_64-unknown-linux-musl
 
 on:
   push:
@@ -97,7 +93,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./lebeben-go-macos.tar.gz
           asset_content_type: application/gzip
-          asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.MACOS_TARGET }}.tar.gz
+          asset_name: lebeben-go-macos.tar.gz
       - name: Upload Windows Binary
         id: upload_windows_binary
         uses: actions/upload-release-asset@v1
@@ -107,7 +103,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./lebeben-go-win64.tar.gz
           asset_content_type: application/gzip
-          asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.WINDOWS_TARGET }}.tar.gz
+          asset_name: lebeben-go-win64.tar.gz
       - name: Upload Linux Binary
         id: upload_linux_binary
         uses: actions/upload-release-asset@v1
@@ -115,9 +111,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./lebeben-go-macos.tar.gz
+          asset_path: ./lebeben-go-linux.tar.gz
           asset_content_type: application/gzip
-          asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
+          asset_name: lebeben-go-linux.tar.gz
       - name: Publish to NPM
         id: publish_to_npm
         uses: JS-DevTools/npm-publish@v1
