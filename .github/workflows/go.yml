@@ -54,9 +54,9 @@ jobs:
         with:
           name: lebeben_binaries
           path: |
-            ./builds/lebeben-go-macos/lebeben-go-macos.tar.gz
-            ./builds/lebeben-go-macos/lebeben-go-win64.tar.gz
-            ./builds/lebeben-go-macos/lebeben-go-linux.tar.gz
+            ./lebeben-go-macos.tar.gz
+            ./lebeben-go-win64.tar.gz
+            ./lebeben-go-linux.tar.gz
           if-no-files-found: error
           retention-days: 0
 
@@ -91,7 +91,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./builds/lebeben-go-macos/lebeben-go-macos.tar.gz
+          asset_path: ./lebeben-go-macos.tar.gz
           asset_content_type: application/gzip
           asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.MACOS_TARGET }}.tar.gz
       - name: Upload Windows Binary
@@ -101,7 +101,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./builds/lebeben-go-win64/lebeben-go-win64.tar.gz
+          asset_path: ./lebeben-go-win64.tar.gz
           asset_content_type: application/gzip
           asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.WINDOWS_TARGET }}.tar.gz
       - name: Upload Linux Binary
@@ -111,7 +111,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./builds/lebeben-go-macos/lebeben-go-macos.tar.gz
+          asset_path: ./lebeben-go-macos.tar.gz
           asset_content_type: application/gzip
           asset_name: lebeben-go-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
         
