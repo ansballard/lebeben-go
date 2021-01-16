@@ -83,7 +83,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          prerelease: true
+          prerelease: false
       - name: Download Binaries
         uses: actions/download-artifact@v2
         with:
