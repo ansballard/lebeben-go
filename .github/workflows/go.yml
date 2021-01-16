@@ -1,7 +1,6 @@
-name: Build and Release Lebeben
+name: Build, Release, and Publish Lebeben
 
 env:
-  RELEASE_DIR: artifacts
   GITHUB_REF: "${{ github.ref }}"
 
 on:
@@ -44,7 +43,7 @@ jobs:
           env GOOS='linux' GOARCH='amd64' go build -o builds/lebeben-go-linux/lebeben-go .
           chmod +x builds/lebeben-go-linux/lebeben-go
           tar -C builds -czvf lebeben-go-linux.tar.gz lebeben-go-linux
-      
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -61,16 +60,13 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14' 
       - name: Query version number
         id: get_version
         shell: bash
         run: |
           echo "using version tag ${GITHUB_REF:15}"
           echo ::set-output name=version::"${GITHUB_REF:15}"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -80,10 +76,12 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           prerelease: false
+
       - name: Download Binaries
         uses: actions/download-artifact@v2
         with:
           name: lebeben_binaries
+
       - name: Upload Mac Binary
         id: upload_mac_binary
         uses: actions/upload-release-asset@v1
@@ -94,6 +92,7 @@ jobs:
           asset_path: ./lebeben-go-macos.tar.gz
           asset_content_type: application/gzip
           asset_name: lebeben-go-macos.tar.gz
+
       - name: Upload Windows Binary
         id: upload_windows_binary
         uses: actions/upload-release-asset@v1
@@ -104,6 +103,7 @@ jobs:
           asset_path: ./lebeben-go-win64.tar.gz
           asset_content_type: application/gzip
           asset_name: lebeben-go-win64.tar.gz
+
       - name: Upload Linux Binary
         id: upload_linux_binary
         uses: actions/upload-release-asset@v1
@@ -114,6 +114,18 @@ jobs:
           asset_path: ./lebeben-go-linux.tar.gz
           asset_content_type: application/gzip
           asset_name: lebeben-go-linux.tar.gz
+
+  publish:
+    name: NPM Publish
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
       - name: Publish to NPM
         id: publish_to_npm
         uses: JS-DevTools/npm-publish@v1

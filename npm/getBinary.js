@@ -1,10 +1,10 @@
 const { Binary } = require("binary-install");
-const os = require('os');
+const os = require("os");
 
 const getPlatform = () => {
   const arch = os.arch();
 
-  if(arch !== "x64") {
+  if (arch !== "x64") {
     throw new Error("64 bit required");
   }
   switch (os.type()) {
@@ -15,7 +15,7 @@ const getPlatform = () => {
     case "Darwin":
       return "macos";
   }
-}
+};
 
 const getBinary = () => {
   const platform = getPlatform();
@@ -38,5 +38,5 @@ const install = () => {
 
 module.exports = {
   install,
-  run
+  run,
 };
