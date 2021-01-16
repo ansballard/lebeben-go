@@ -53,7 +53,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: lebeben_binaries
-          path: ./builds
+          path: |
+            ./builds/lebeben-go-macos/lebeben-go-macos.tar.gz
+            ./builds/lebeben-go-macos/lebeben-go-win64.tar.gz
+            ./builds/lebeben-go-macos/lebeben-go-linux.tar.gz
           if-no-files-found: error
           retention-days: 0
 
