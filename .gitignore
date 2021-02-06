@@ -3,3 +3,4 @@ public
 *.tar.gz
 builds/*/*
 node_modules
+.DS_Store

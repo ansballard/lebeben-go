@@ -3,15 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/evanw/esbuild/pkg/api"
-	"github.com/fatih/color"
-	"github.com/radovskyb/watcher"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/evanw/esbuild/pkg/api"
+	"github.com/fatih/color"
+	"github.com/radovskyb/watcher"
 )
 
 func build(
@@ -82,6 +83,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	sourceFiles := flag.Args()
+
+	if len(sourceFiles) == 0 {
+		fmt.Println(color.RedString("Must pass at least 1 entryfile as a non-flagged option\ne.g. lebeben-go src/index.js"))
+		os.Exit(1)
+	}
+
 	wg := new(sync.WaitGroup)
 
 	buildResult := build(
@@ -115,6 +123,7 @@ func main() {
 					buildResult.Rebuild()
 					fmt.Printf("⏱️  %s %s\n", color.GreenString(time.Since(startTime).Truncate(time.Millisecond).String()), color.YellowString(event.Name()))
 				case err := <-w.Error:
+					fmt.Println(color.RedString("Caught failed filechange event"))
 					fmt.Println(err)
 				case <-w.Closed:
 					return
@@ -124,17 +133,18 @@ func main() {
 
 		for _, directory := range Watch {
 			if addErr := w.AddRecursive(directory); addErr != nil {
-				fmt.Println(addErr)
+				fmt.Printf("Failed to watch \"%s\", did you pass a valid path?\n", color.RedString(directory))
 			}
 		}
 
 		if startErr := w.Start(time.Millisecond * 100); startErr != nil {
+			fmt.Println(color.RedString("Failed to start watching files"))
 			fmt.Println(startErr)
 		}
 	}
 
 	if len(buildResult.Errors) > 0 {
-		fmt.Println("errors?")
+		fmt.Println(color.RedString("Failed to build"))
 		fmt.Println(buildResult.Errors)
 	}
 
